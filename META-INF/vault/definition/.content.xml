@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:vlt="http://www.day.com/jcr/vault/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    jcr:created="{Date}2012-11-30T14:09:47.792+01:00"
+    jcr:createdBy="admin"
+    jcr:description="Sample project package"
+    jcr:lastModified="{Date}2012-11-30T14:09:47.792+01:00"
+    jcr:lastModifiedBy="admin"
+    jcr:primaryType="vlt:PackageDefinition"
+    sling:resourceType="cq/packaging/components/pack/definition"
+    acHandling="&amp;nbsp;"
+    buildCount="2"
+    cqVersion="5.3"
+    fixedBugs=""
+    group="rh"
+    lastUnwrapped="{Date}2012-11-30T14:09:47.792+01:00"
+    lastUnwrappedBy="admin"
+    lastWrapped="{Date}2012-11-30T14:09:47.792+01:00"
+    lastWrappedBy="admin"
+    name="selectable"
+    path="/etc/packages/rh/selectable"
+    providerLink=""
+    providerName=""
+    providerUrl=""
+    testedWith=""
+    version="">
+    <filter jcr:primaryType="nt:unstructured">
+        <f0
+            jcr:primaryType="nt:unstructured"
+            mode="replace"
+            root="/content/selectable"
+            rules="[]"/>
+        <f1
+            jcr:primaryType="nt:unstructured"
+            mode="replace"
+            root="/apps/selectable"
+            rules="[]"/>
+    </filter>
+</jcr:root>
