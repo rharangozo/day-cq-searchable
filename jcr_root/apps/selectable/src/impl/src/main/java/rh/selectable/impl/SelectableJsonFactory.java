@@ -1,6 +1,7 @@
 package rh.selectable.impl;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -15,11 +16,12 @@ import javax.jcr.query.qom.PropertyValue;
 import javax.jcr.query.qom.QueryObjectModelFactory;
 import javax.jcr.query.qom.Selector;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
+import org.apache.sling.commons.json.JSONException;
+import org.apache.sling.commons.json.io.JSONWriter;
 import org.apache.sling.jcr.api.SlingRepository;
 import org.osgi.service.component.ComponentContext;
 
@@ -42,68 +44,56 @@ public class SelectableJsonFactory extends SlingSafeMethodsServlet  {
 	protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) 
 		throws ServletException, IOException {
 		
-		ServletOutputStream out = response.getOutputStream();		 
+		PrintWriter out = response.getWriter();		 
 		String category = request.getParameter("category");
 		
 		if(category == null) {
 			throw new IllegalArgumentException("The 'category' property is mandatory!");
 		}
-		
-		out.println("[");
-		
+				
 		try {
+			JSONWriter jsonWriter = new JSONWriter(out);
+			jsonWriter.setTidy(true);
+			jsonWriter = jsonWriter.array();
+			
 			for(String ancestor : ANCESTORS) {
 				
 				NodeIterator iterator = listResources(ancestor, category);
 				
-				boolean hasNext = iterator.hasNext();
-				while(hasNext) {
+				while(iterator.hasNext()) {
 					
-					print(out, iterator.nextNode());
+					jsonWriter = print(jsonWriter, iterator.nextNode());
 					
-					hasNext = iterator.hasNext();
-					if(hasNext) {
-						out.println(",");
-					}
 				}				
 			}
 			
+			jsonWriter.endArray();
+			
 		} catch (RepositoryException e) {
 			throw new RuntimeException(e);
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
 		}
-		
-		out.println("]");
 	}
 
-	private void print(ServletOutputStream out, Node node) throws IOException,
-			RepositoryException {
+	private JSONWriter print(JSONWriter jsonWriter, Node node) throws IOException,
+			RepositoryException, JSONException {
 		
-		out.print("{");
+		String selectableValue = node.hasProperty("selectable-value") == true ? 
+				node.getProperty("selectable-value").getString() : 
+				node.getPath();
 		
-		//print out the value property
-		
-		if(node.hasProperty("selectable-value")) {
-			out.print("\"value\" : \"" + node.getProperty("selectable-value") + "\"");
-		} else {
-			out.print("\"value\" : \"" + node.getPath() + "\"");
-		}
-		
-		out.println(",");
-		//print out the text property
-		
-		if(node.hasProperty("selectable-text")) {
-			out.print("\"text\" : \"" + node.getProperty("selectable-text") + "\"");
-		} else {
-			out.print("\"text\" : \"" + node.getPath() + "\"");		
-		}
-
-		out.println(",");
-		//print out the qtip property
-		
+		String selectableText = node.hasProperty("selectable-text") == true ?
+				node.getProperty("selectable-text").getString() :
+				node.getPath();
+				
 		String qtip = (String) (node.hasProperty("selectable-qtip") == true ? node.getProperty("") : "");
-		out.print("\"qtip\" : \"" + qtip + "\"");		
-		
-		out.println("}");
+		 
+		return jsonWriter.object().
+				key("value").value(selectableValue).
+				key("text").value(selectableText).
+				key("qtip").value(qtip)
+				.endObject();
 	}
 
 	private NodeIterator listResources(String ancestor, String category) throws RepositoryException,
