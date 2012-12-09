@@ -87,7 +87,7 @@ public class SelectableJsonFactory extends SlingSafeMethodsServlet  {
 				node.getProperty("selectable-text").getString() :
 				node.getPath();
 				
-		String qtip = (String) (node.hasProperty("selectable-qtip") == true ? node.getProperty("") : "");
+		String qtip = (String) (node.hasProperty("selectable-qtip") == true ? node.getProperty("selectable-qtip") : "");
 		 
 		return jsonWriter.object().
 				key("value").value(selectableValue).
